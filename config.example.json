@@ -76,6 +76,40 @@
       "name": "BitLLM (local)",
       "modelsUrl": "http://127.0.0.1:7778/v1/models",
       "headers": { "Authorization": "Bearer bitllm" }
+    },
+    {
+      "id": "uncensoredllm",
+      "name": "UncensoredLLM (free, public key)",
+      "modelsUrl": "https://uncensored-llm.sbs/v1/models",
+      "modelUrl": "https://uncensored-llm.sbs",
+      "home": "https://uncensored-llm.sbs/",
+      "freeAssumed": true,
+      "headers": { "Authorization": "Bearer ${UNCENSOREDLLM_KEY}" }
+    },
+    {
+      "id": "pollinations",
+      "name": "Pollinations (anonymous, free)",
+      "modelsUrl": "https://text.pollinations.ai/models",
+      "chatUrl": "https://text.pollinations.ai/openai",
+      "modelUrl": "https://pollinations.ai/",
+      "home": "https://pollinations.ai/",
+      "freeAssumed": true
+    },
+    {
+      "id": "abliteratedmodels",
+      "name": "Abliterated Models (free key, uncensored)",
+      "modelsUrl": "https://api.abliteratedmodels.cc/v1/models",
+      "modelUrl": "https://abliteratedmodels.cc/models/{id}",
+      "home": "https://abliteratedmodels.cc/",
+      "headers": { "Authorization": "Bearer ${ABLITERATED_KEY}" }
+    },
+    {
+      "id": "deepinfra",
+      "name": "DeepInfra (key, trial/paid tier)",
+      "modelsUrl": "https://api.deepinfra.com/v1/openai/models",
+      "modelUrl": "https://deepinfra.com/models/{id}",
+      "home": "https://deepinfra.com/",
+      "headers": { "Authorization": "Bearer ${DEEPINFRA_KEY}" }
     }
   ]
 }

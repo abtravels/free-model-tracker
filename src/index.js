@@ -24,7 +24,7 @@ async function mapLimit(items, limit, fn) {
   return out;
 }
 
-async function runOnce(config, state) {
+async function runOnce(config, state, maxFailures = 3) {
   const errors = [];
   const found = [];
   const candidates = [];
@@ -35,6 +35,12 @@ async function runOnce(config, state) {
   const activeKeys = new Set();
 
   for (const source of config.sources) {
+    // Source needs an env key we do not have -> skip silently, log once per run.
+    if (source.missingEnv && source.missingEnv.length) {
+      errors.push(`${source.name ?? source.id}: skips - ${source.missingEnv.join(', ')} not set`);
+      sourcesFailed++;
+      continue;
+    }
     const result = await fetchSource(source);
     if (result.error) {
       sourcesFailed++;
@@ -60,8 +66,12 @@ async function runOnce(config, state) {
       if (prev) {
         prev.lastSeen = now;
         prev.price = free ? 0 : prev.price;
+        if (state.failures && state.failures[model.key]) delete state.failures[model.key];
         continue;
       }
+      // Back off models that failed probing too many times; retried on comeback.
+      const fails = (state.failures && state.failures[model.key]) ?? 0;
+      if (fails >= maxFailures) continue;
       candidates.push({ source, model, uncensored, free });
     }
   }
@@ -89,7 +99,9 @@ async function runOnce(config, state) {
     const p = probes[idx] ?? { ok: true };
     if (!p.ok) {
       errors.push(`probe ${c.model.key}: ${p.error}`);
-      return; // leave unseen -> retried next run
+      state.failures = state.failures ?? {};
+      state.failures[c.model.key] = ((state.failures[c.model.key] ?? 0) + 1);
+      return; // leave unseen -> retried next run (up to maxFailures)
     }
     state.seen[c.model.key] = {
       source: c.model.sourceId,
@@ -179,8 +191,10 @@ async function main() {
   const config = await loadConfig(CONFIG_PATH);
   const state = await loadState(config.statePath);
 
+  const MAX_FAILURES = Number.isFinite(config.maxFailures ?? 3) ? config.maxFailures ?? 3 : 3;
+
   if (ONCE) {
-    await runOnce(config, state);
+    await runOnce(config, state, MAX_FAILURES);
     return;
   }
 

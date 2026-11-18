@@ -5,36 +5,75 @@ export function parseModels(source, payload) {
     : payload?.data ?? payload?.models ?? payload?.results ?? [];
   if (!Array.isArray(rows)) return [];
 
+  const include = source.include ? new RegExp(source.include, 'i') : null;
+  const exclude = source.exclude ? new RegExp(source.exclude, 'i') : null;
+
   return rows
     .map((row) => toModel(source, row))
-    .filter((m) => m.id);
+    .filter((m) => m.id)
+    .filter((m) => !include || include.test(m.id))
+    .filter((m) => !exclude || !exclude.test(m.id));
 }
 
 function toModel(source, row) {
   const id = String(row?.id ?? row?.model ?? row?.name ?? '').trim();
+  const spec = row?.model_spec ?? {};
+  const specCaps = spec?.capabilities ?? {};
   const pricing = row?.pricing ?? {};
-  const prompt = num(pricing.prompt ?? pricing.input ?? row?.price?.input);
-  const completion = num(pricing.completion ?? pricing.output ?? row?.price?.output);
   const arch = row?.architecture ?? {};
   const params = Array.isArray(row?.supported_parameters) ? row.supported_parameters : [];
+
+  // Providers nest prices differently: {prompt}, {input:{usd}}, {input:0.2}, model_spec.pricing...
+  let prompt = money(pricing.prompt ?? pricing.input)
+    ?? money(spec?.pricing?.input)
+    ?? money(row?.price?.input)
+    ?? money(row?.input_price);
+  let completion = money(pricing.completion ?? pricing.output)
+    ?? money(spec?.pricing?.output)
+    ?? money(row?.price?.output)
+    ?? money(row?.output_price);
+
+  // Some catalogues simply do not publish prices (keyless free endpoints).
+  if (source.freeAssumed) {
+    if (prompt === null) prompt = 0;
+    if (completion === null) completion = 0;
+  }
+  // Providers quoting per-character / per-1K prices would otherwise look paid.
+  if (source.priceScale) {
+    prompt = prompt === null ? null : prompt * source.priceScale;
+    completion = completion === null ? null : completion * source.priceScale;
+  }
+
+  const inMods = Array.isArray(row?.input_modalities) ? row.input_modalities : null;
+  const outMods = Array.isArray(row?.output_modalities) ? row.output_modalities : null;
+  const modality = arch.modality ?? row?.modality ?? (outMods ? `${inMods?.join('+') ?? 'text'}->${outMods.join('+')}` : null);
 
   return {
     key: `${source.id}::${id}`,
     sourceId: source.id,
     sourceName: source.name ?? source.id,
     id,
-    name: row?.name ?? id,
+    name: row?.name ?? spec?.name ?? id,
     url: modelUrl(source, id),
-    context: int(row?.context_length ?? row?.context_window ?? row?.limit?.context),
-    maxOut: int(row?.maximum_output_length ?? row?.top_provider?.max_completion_tokens ?? row?.limit?.output),
+    context: int(row?.context_length ?? row?.context_window?.tokens ?? row?.context_window ?? spec?.availableContextTokens ?? row?.limit?.context),
+    maxOut: int(row?.maximum_output_length ?? row?.top_provider?.max_completion_tokens ?? spec?.maxCompletionTokens ?? row?.limit?.output),
     promptPrice: prompt,
     completionPrice: completion,
-    modality: arch.modality ?? row?.modality ?? null,
-    vision: Array.isArray(arch.input_modalities) ? arch.input_modalities.includes('image') : null,
-    tools: params.length ? params.includes('tools') : null,
-    reasoning: params.length ? params.includes('reasoning') : null,
+    modality,
+    vision: specCaps.supportsVision ?? row?.vision ?? (Array.isArray(arch.input_modalities) ? arch.input_modalities.includes('image') : null),
+    tools: specCaps.supportsFunctionCalling ?? row?.tools ?? (params.length ? params.includes('tools') : null),
+    reasoning: specCaps.supportsReasoning ?? row?.reasoning ?? (params.length ? params.includes('reasoning') : null),
+    // Venice and some gateways flag it explicitly instead of using a name keyword.
+    declaredUncensored: row?.uncensored === true || spec?.uncensored === true || (Array.isArray(spec?.traits) && spec.traits.includes('most_uncensored')),
     created: int(row?.created),
   };
+}
+
+/** Coerce a price that may be a number, a numeric string, or an object like { usd: 0.2 }. */
+function money(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (typeof v === 'object') return money(v.usd ?? v.price ?? v.value ?? v.amount ?? null);
+  return num(v);
 }
 
 /** Build a clickable page URL for a model, from the source's modelUrl template. */

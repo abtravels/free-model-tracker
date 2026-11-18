@@ -47,6 +47,9 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           NUMES_KEY: ${{ secrets.NUMES_KEY }}
           OPENROUTER_KEY: ${{ secrets.OPENROUTER_KEY }}
+          UNCENSOREDLLM_KEY: ${{ secrets.UNCENSOREDLLM_KEY }}
+          ABLITERATED_KEY: ${{ secrets.ABLITERATED_KEY }}
+          DEEPINFRA_KEY: ${{ secrets.DEEPINFRA_KEY }}
           ZENMUX_KEY: ${{ secrets.ZENMUX_KEY }}
           CROWLLM_KEY: ${{ secrets.CROWLLM_KEY }}
           APINEX_KEY: ${{ secrets.APINEX_KEY }}
