@@ -37,6 +37,8 @@ jobs:
             const fs = require("fs");
             const cfg = JSON.parse(fs.readFileSync("config.example.json", "utf8"));
             cfg.statePath = "data/seen.json";
+            // A runner cannot reach the author s local machine.
+            cfg.sources = cfg.sources.filter((s) => !/\b(127\.0\.0\.1|localhost)\b/.test(s.modelsUrl));
             fs.writeFileSync("config.json", JSON.stringify(cfg, null, 2));
           '
 

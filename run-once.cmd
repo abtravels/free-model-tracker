@@ -2,6 +2,11 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 
+rem Local run: only sources that GitHub Actions cannot reach (127.0.0.1 / localhost).
+rem Remote providers are scanned by the GitHub Actions workflow, so running them
+rem here too would post every model twice.
+set "TRACKER_CONFIG=config.local.json"
+
 set "KEYDIR=%USERPROFILE%\.config\opencode"
 
 for /f "usebackq delims=" %%k in ("%KEYDIR%\numes-api-key.txt") do set "NUMES_KEY=%%k"

@@ -2,5 +2,6 @@ node_modules/
 data/
 logs/
 config.json
+config.local.json
 config.test.json
 .env
