@@ -68,12 +68,13 @@ export async function discoverGithub(config, state, nowIso) {
 
 /**
  * GitHub search matches any word in the README, so it returns plenty of noise
- * (VPN lists, resume tools...). Keep only repos that plausibly describe an AI
- * API source: AI keyword AND a free / API-sharing keyword, and no negative one.
+ * (VPN lists, resume tools, security firewalls). Keep only repos that plausibly
+ * describe an AI API source: AI keyword AND a free / API-sharing keyword, and no
+ * negative one.
  */
-const NEGATIVE = /\b(vpn|shadowsocks|v2ray|clash|trojan|proxy[-\s]?list|proxylist|socks5|scorecard|resume|recipe|wallpaper|crypto[-\s]?miner)\b/i;
+const NEGATIVE = /\b(vpn|shadowsocks|v2ray|clash|trojan|proxy[-\s]?list|proxylist|socks5|scorecard|resume|recipe|wallpaper|crypto[-\s]?miner|firewall|security|scanner|waf|dlp|ssrf|pentest|sandbox|malware|audit|compliance|blockchain)\b/i;
 const AI_TERM = /\b(llm|gpt|openai|inference|genai|chatbot|completions?|multimodal|mistral|llama|qwen|deepseek|gemini|claude|diffusion|text[-\s]?to[-\s]?(text|image)|ai)\b/i;
-const FREE_TERM = /\b(free|uncensored|abliterat\w*|heretic|api[-\s]?keys?|gateway|router|proxy|compatible|aggregator|list|awesome)\b/i;
+const FREE_TERM = /\b(free|uncensored|abliterat\w*|heretic|api[-\s]?keys?|gateway|router|aggregator|openai[-\s]?compatible|compatible[-\s]?api|awesome|list)\b/i;
 
 export function isRelevantRepo(repo) {
   const hay = `${repo.name} ${repo.description ?? ''} ${(repo.topics ?? []).join(' ')}`;
