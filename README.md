@@ -44,6 +44,7 @@ be driven by Task Scheduler.
 | `sources` | `{ id, name, modelsUrl, modelUrl?, home?, headers? }` |
 | `modelUrl` | template for the per-model page, `{id}` is replaced |
 | `uncensoredKeywords` | lowercase substrings that flag a model as interesting |
+| `freeOnly` | `true` = only models whose prompt **and** completion price are 0 |
 | `onlyUncensored` | `true` posts only uncensored hits |
 | `discovery` | `{ enabled, minStars, maxAgeDays, githubQueries }` |
 | `quietHours` | optional `{ start: 0, end: 7 }` local hours without posts |

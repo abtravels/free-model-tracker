@@ -1,6 +1,7 @@
 {
   "discordWebhook": "${DISCORD_WEBHOOK}",
   "intervalMinutes": 15,
+  "freeOnly": true,
   "onlyUncensored": false,
   "maxEmbedsPerMessage": 10,
   "statePath": "data/seen.json",
@@ -15,7 +16,7 @@
   ],
   "quietHours": null,
   "discovery": {
-    "enabled": true,
+    "enabled": false,
     "minStars": 2,
     "maxAgeDays": 45,
     "githubQueries": [

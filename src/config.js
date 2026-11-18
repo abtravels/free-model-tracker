@@ -9,6 +9,8 @@ export async function loadConfig(path) {
   if (!Number.isFinite(cfg.maxEmbedsPerMessage)) cfg.maxEmbedsPerMessage = 10;
   if (!Array.isArray(cfg.uncensoredKeywords)) cfg.uncensoredKeywords = DEFAULT_KEYWORDS;
   if (!cfg.statePath) cfg.statePath = 'data/seen.json';
+  cfg.freeOnly = cfg.freeOnly === true;
+  cfg.onlyUncensored = cfg.onlyUncensored === true;
   return cfg;
 }
 

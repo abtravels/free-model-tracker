@@ -32,9 +32,11 @@ async function runOnce(config, state) {
     for (const model of result.models) {
       const uncensored = matchesKeywords(model, config.uncensoredKeywords);
       const free = isFree(model);
-      const interesting = free || (uncensored && !config.onlyUncensored ? true : uncensored);
-      if (!interesting) continue;
+      // freeOnly  -> announce only models with a 0/0 price (uncensored ones still highlighted)
+      // onlyUncensored -> ignore plain free models that are not uncensored
+      if (config.freeOnly && !free) continue;
       if (config.onlyUncensored && !uncensored) continue;
+      if (!free && !uncensored) continue;
 
       activeKeys.add(model.key);
       const prev = state.seen[model.key];
