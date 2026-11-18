@@ -1,0 +1,52 @@
+name: scan
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore seen state
+        uses: actions/cache@v4
+        with:
+          path: data/seen.json
+          key: seen-${{ github.run_id }}
+          restore-keys: |
+            seen-
+
+      - name: Build config
+        run: |
+          node -e '
+            const fs = require("fs");
+            const cfg = JSON.parse(fs.readFileSync("config.example.json", "utf8"));
+            cfg.statePath = "data/seen.json";
+            fs.writeFileSync("config.json", JSON.stringify(cfg, null, 2));
+          '
+
+      - name: Scan
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          NUMES_KEY: ${{ secrets.NUMES_KEY }}
+          ZENMUX_KEY: ${{ secrets.ZENMUX_KEY }}
+          CROWLLM_KEY: ${{ secrets.CROWLLM_KEY }}
+          APINEX_KEY: ${{ secrets.APINEX_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SUMMARY_ALWAYS: "0"
+        run: node src/index.js --once --verbose
