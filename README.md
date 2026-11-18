@@ -27,6 +27,12 @@ be driven by Task Scheduler.
    its id/name matches an uncensored keyword (abliterated, heretic, uncensored, …).
 3. Posts one embed per hit: source, price, context, max output, capability tags
    (🖼 vision · 🛠 tools · 🧠 reasoning) and an **Open link** to the model page.
+4. **Live check before posting** (`verify.enabled`): sends a tiny `max_tokens: 8`
+   request to the model. Only models that actually answer get announced, so a
+   catalogue listing that is dead, mispriced, or requires credentials nobody has
+   (OpenRouter's `:free` models answer `401 No cookie auth credentials found`)
+   never reaches Discord. Failures are retried on the next run instead of posted.
+   Each verified embed shows the measured latency (`✅ answered in 57.2s`).
 4. **GitHub discovery** (`discovery.enabled`) searches repos that share free /
    uncensored APIs. Noise is filtered out (VPN lists, proxy lists, resumes, …): a
    repo must look AI-related *and* free/API-related. New repos arrive as
@@ -45,6 +51,7 @@ be driven by Task Scheduler.
 | `modelUrl` | template for the per-model page, `{id}` is replaced |
 | `uncensoredKeywords` | lowercase substrings that flag a model as interesting |
 | `freeOnly` | `true` = only models whose prompt **and** completion price are 0 |
+| `verify` | `{ enabled, maxTokens, timeoutMs, concurrency, maxProbesPerRun }` — live check before posting |
 | `onlyUncensored` | `true` posts only uncensored hits |
 | `discovery` | `{ enabled, minStars, maxAgeDays, githubQueries }` |
 | `quietHours` | optional `{ start: 0, end: 7 }` local hours without posts |

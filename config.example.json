@@ -4,6 +4,13 @@
   "freeOnly": true,
   "onlyUncensored": false,
   "maxEmbedsPerMessage": 10,
+  "verify": {
+    "enabled": true,
+    "maxTokens": 8,
+    "timeoutMs": 75000,
+    "concurrency": 4,
+    "maxProbesPerRun": 12
+  },
   "statePath": "data/seen.json",
   "uncensoredKeywords": [
     "uncensored",

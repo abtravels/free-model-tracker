@@ -39,7 +39,7 @@ export async function postEmbeds(webhookUrl, embeds, opts = {}) {
 }
 
 /** Build one embed describing a newly discovered model. */
-export function buildModelEmbed(model, { uncensored = false } = {}) {
+export function buildModelEmbed(model, { uncensored = false, verified = false, latencyMs = null } = {}) {
   const free = model.promptPrice === 0 && model.completionPrice === 0;
   const price = free
     ? 'FREE'
@@ -59,6 +59,13 @@ export function buildModelEmbed(model, { uncensored = false } = {}) {
   if (model.maxOut) fields.push({ name: 'Max output', value: fmtNum(model.maxOut), inline: true });
   if (tags.length) fields.push({ name: 'Capabilities', value: tags.join(' · '), inline: false });
   if (model.url) fields.push({ name: 'Link', value: `[Open ${model.sourceName}](${model.url})`, inline: false });
+  if (verified) {
+    fields.push({
+      name: 'Live check',
+      value: latencyMs ? `✅ answered in ${(latencyMs / 1000).toFixed(1)}s` : '✅ answered',
+      inline: false,
+    });
+  }
 
   return {
     title: truncate(model.name || model.id, 250),
