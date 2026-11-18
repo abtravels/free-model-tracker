@@ -10,6 +10,7 @@ set "TRACKER_CONFIG=config.local.json"
 set "KEYDIR=%USERPROFILE%\.config\opencode"
 
 for /f "usebackq delims=" %%k in ("%KEYDIR%\numes-api-key.txt") do set "NUMES_KEY=%%k"
+for /f "usebackq delims=" %%k in ("%KEYDIR%\openrouter-api-key.txt") do set "OPENROUTER_KEY=%%k"
 for /f "usebackq delims=" %%k in ("%KEYDIR%\zenmux-api-key.txt") do set "ZENMUX_KEY=%%k"
 for /f "usebackq delims=" %%k in ("%KEYDIR%\crowllm-api-key.txt") do set "CROWLLM_KEY=%%k"
 for /f "usebackq delims=" %%k in ("%KEYDIR%\apinex-api-key.txt") do set "APINEX_KEY=%%k"

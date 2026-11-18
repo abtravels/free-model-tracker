@@ -47,7 +47,8 @@
       "name": "OpenRouter",
       "modelsUrl": "https://openrouter.ai/api/v1/models",
       "modelUrl": "https://openrouter.ai/{id}",
-      "home": "https://openrouter.ai/models"
+      "home": "https://openrouter.ai/models",
+      "headers": { "Authorization": "Bearer ${OPENROUTER_KEY}" }
     },
     {
       "id": "zenmux",
