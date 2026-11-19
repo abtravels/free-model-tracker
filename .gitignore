@@ -1,5 +1,5 @@
 node_modules/
-data/
+data/*
 logs/
 config.json
 config.local.json
@@ -11,4 +11,3 @@ worker/.wrangler/
 
 
 !data/radar-seen.json
-
