@@ -9,3 +9,6 @@ config.test.json
 .wrangler/
 worker/.wrangler/
 
+
+!data/radar-seen.json
+

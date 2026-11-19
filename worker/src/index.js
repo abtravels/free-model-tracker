@@ -15,7 +15,7 @@ const UNCENSORED_KEYWORDS = [
 ];
 
 /** Catalogue sources. `env` names a secret binding; missing secret => source skipped. */
-function sources(env) {
+function sources(env, adopted = []) {
   const list = [
     {
       id: 'numes',
@@ -79,7 +79,19 @@ function sources(env) {
     },
   ];
   // Sources that need a key we do not have are dropped, not reported as errors.
-  return list.filter((s) => !('key' in s) || s.key);
+  const usable = list.filter((s) => !('key' in s) || s.key);
+
+  // Providers the radar proved keyless join the scan automatically.
+  for (const a of adopted.slice(0, 10)) {
+    usable.push({
+      id: `radar-${a.id}`,
+      name: a.name,
+      modelsUrl: a.modelsUrl,
+      freeAssumed: true,
+      radar: true,
+    });
+  }
+  return usable;
 }
 
 function headersFor(source) {
@@ -305,6 +317,18 @@ async function postEmbeds(webhook, embeds, content) {
 /* ----------------------------------- scan ---------------------------------- */
 
 const STATE_KEY = 'seen';
+const RADAR_KEY = 'radar';
+
+async function loadRadar(env) {
+  if (!env.STATE) return [];
+  const list = await env.STATE.get(RADAR_KEY, 'json');
+  return Array.isArray(list) ? list : [];
+}
+
+async function saveRadar(env, list) {
+  if (!env.STATE) return;
+  await env.STATE.put(RADAR_KEY, JSON.stringify(list.slice(0, 10)));
+}
 
 async function loadState(env) {
   if (!env.STATE) return { seen: {}, failures: {} };
@@ -333,7 +357,7 @@ async function scan(env) {
   const activeKeys = new Set();
   const now = new Date().toISOString();
 
-  const active = sources(env);
+  const active = sources(env, await loadRadar(env));
   for (const source of active) {
     const result = await fetchSource(source);
     if (result.error) {
@@ -448,8 +472,7 @@ export default {
       });
     }
 
-    // One-off migration: import the Node tracker's seen.json so models it
-    // already announced are not announced again here.
+    // One-off migration: import the Node tracker's seen.json so models it    // already announced are not announced again here.
     if (url.pathname === '/seed' && request.method === 'POST') {
       const body = await request.json();
       const existing = await loadState(env);
@@ -458,7 +481,27 @@ export default {
       return Response.json({ ok: true, count: Object.keys(merged.seen).length });
     }
 
-    return new Response('free-model-tracker\n\nGET /health\nGET /scan\nGET /state\n', {
+    // Radar hand-off: adopt keyless providers the radar probed successfully.
+    if (url.pathname === '/radar') {
+      if (request.method === 'POST') {
+        if (env.RADAR_TOKEN && request.headers.get('x-radar-token') !== env.RADAR_TOKEN) {
+          return new Response('forbidden', { status: 403 });
+        }
+        const body = await request.json().catch(() => ({}));
+        const incoming = (body.sources ?? []).filter((s) => s?.id && s?.modelsUrl);
+        const current = await loadRadar(env);
+        const merged = [...current];
+        for (const s of incoming) {
+          if (!merged.some((x) => x.id === s.id)) merged.push({ id: s.id, name: s.name, modelsUrl: s.modelsUrl });
+        }
+        await saveRadar(env, merged);
+        return Response.json({ ok: true, count: merged.length });
+      }
+      const list = await loadRadar(env);
+      return Response.json({ count: list.length, sources: list });
+    }
+
+    return new Response('free-model-tracker\n\nGET /health\nGET /scan\nGET /state\nGET /radar\n', {
       headers: { 'content-type': 'text/plain' },
     });
   },

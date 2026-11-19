@@ -19,6 +19,28 @@ node src/index.js                      # loop forever (15 min default)
 Windows: `run-once.cmd` reads keys from `~/.config/opencode/*-api-key.txt` so it can
 be driven by Task Scheduler.
 
+## Radar (finding providers nobody lists)
+
+`src/radar.js` is a separate, daily sweep. It does not read `/v1/models` of known
+sources; it hunts for **new sources**:
+
+1. **Curated provider feed** — `awesome-free-ai-coding/index.json` (137 providers,
+   each already marked "free" / "no card" by its maintainers, with base URLs).
+   Entries that are uncensored or free get an anonymous `/models` probe and then a
+   real `max_tokens: 8` chat probe. Only the ones that truly answer stay keyless;
+   the rest are reported as "key needed" with their key page.
+2. **Hugging Face releases** — models published in the last 3 days matching
+   abliterated / uncensored, with a small likes/downloads floor.
+
+Keyless providers are POSTed to the Worker's `/radar` endpoint and the 15-minute
+scan starts watching them automatically. Findings are de-duplicated by
+`data/radar-seen.json`.
+
+```bash
+npm run radar:dry     # preview, posts nothing
+npm run radar         # real sweep
+```
+
 ## Cloudflare Worker (recommended scheduler)
 
 GitHub Actions cron is best-effort: in practice it fired only twice in 25 hours

@@ -1,0 +1,42 @@
+name: radar
+
+# Finds new free / uncensored providers and newly published uncensored weights.
+# Separate from the 15-minute scan: this is a slow, wide sweep, so it runs daily.
+
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Sweep feeds
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          RADAR_TOKEN: ${{ secrets.RADAR_TOKEN }}
+          TRACKER_WORKER_URL: https://free-model-tracker.umair5075.workers.dev
+        run: node src/radar.js --verbose
+
+      - name: Persist what was already reported
+        run: |
+          git config user.name "radar-bot"
+          git config user.email "actions@github.com"
+          git add -f data/radar-seen.json
+          git diff --quiet --cached || git commit -m "radar: remember reported findings"
+          git push

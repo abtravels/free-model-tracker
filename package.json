@@ -1,15 +1,17 @@
 {
-  "name": "free-model-tracker",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Tracks free / uncensored AI models across OpenAI-compatible providers and alerts a Discord webhook.",
-  "scripts": {
-    "start": "node src/index.js",
-    "once": "node src/index.js --once",
-    "dry": "node src/index.js --once --dry"
-  },
-  "engines": {
-    "node": ">=20"
-  }
+    "name":  "free-model-tracker",
+    "version":  "1.0.0",
+    "private":  true,
+    "type":  "module",
+    "description":  "Tracks free / uncensored AI models across OpenAI-compatible providers and alerts a Discord webhook.",
+    "scripts":  {
+                    "start":  "node src/index.js",
+                    "once":  "node src/index.js --once",
+                    "dry":  "node src/index.js --once --dry",
+                    "radar":  "node src/radar.js",
+                    "radar:dry":  "node src/radar.js --dry --verbose"
+                },
+    "engines":  {
+                    "node":  "\u003e=20"
+                }
 }
