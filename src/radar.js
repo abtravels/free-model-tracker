@@ -126,7 +126,67 @@ async function probeChat(modelsUrl, modelIds) {
   return { ok: hasChoice, status: r.status, model: pick };
 }
 
-/* ----------------------------- provider discovery ---------------------------- */
+/* ------------------------------- github crawl ------------------------------- */
+
+/**
+ * GitHub crawl: repos that advertise free / uncensored OpenAI-compatible
+ * endpoints, whose READMEs are mined for base URLs and then probed. Finds
+ * gateways no directory lists yet. Needs GITHUB_TOKEN (CI only).
+ */
+async function githubCandidates(seen, knownHosts) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return [];
+
+  const queries = [
+    'topic:free-llm-api',
+    'topic:llm-api stars:>20',
+    '"base_url" uncensored openai in:readme',
+    '"openai-compatible" abliterated in:readme',
+    '"free api" "no key" llm in:readme',
+  ];
+
+  // Hosts we already watch or that are never worth re-reporting.
+  const known = new Set([
+    'openrouter.ai', 'api.openai.com', 'generativelanguage.googleapis.com', 'ollama.com',
+    'api.groq.com', 'api.mistral.ai', 'api.deepinfra.com', 'api.numes.ai', 'api.zenmux.ai',
+    'api.nvidia.com', 'integrate.api.nvidia.com', 'text.pollinations.ai', 'api.llm7.io',
+    'api.anthropic.com', 'api.together.xyz', 'api.fireworks.ai', 'localhost',
+  ]);
+
+  const readmes = new Set();
+  for (const q of queries) {
+    const r = await fetchJson(
+      `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&per_page=8`,
+      { headers: { Authorization: `Bearer ${token}`, 'X-GitHub-Api-Version': '2022-11-28' } },
+    );
+    for (const repo of r.json?.items ?? []) {
+      if (/awesome-|\.github\.io/i.test(repo.full_name)) continue;
+      readmes.add(`${repo.full_name}@${repo.default_branch}`);
+    }
+    await sleep(1200); // stay inside the search rate limit
+  }
+
+  const hosts = new Map();
+  const seenHosts = new Set();
+  for (const entry of [...readmes].slice(0, 14)) {
+    const [full, branch] = entry.split('@');
+    const raw = await fetch(`https://raw.githubusercontent.com/${full}/${branch}/README.md`).catch(() => null);
+    if (!raw?.ok) continue;
+    const text = await raw.text();
+    for (const m of text.matchAll(/https?:\/\/([a-z0-9.-]+\.[a-z]{2,})((?:\/[a-z0-9._~-]+)*\/v\d+(?:beta)?(?:\/openai)?)/gi)) {
+      const host = m[1].toLowerCase();
+      if (known.has(host) || knownHosts.has(host) || seenHosts.has(host)) continue;
+      if (/github|shields|imgur|badge|discord|huggingface|wikipedia|npmjs|pypi|docs\./.test(host)) continue;
+      const base = `https://${host}${m[2]}`;
+      if (seen.providers[`gh:${base}`]) continue;
+      seenHosts.add(host);
+      hosts.set(base, full);
+    }
+  }
+  return [...hosts.entries()].slice(0, 8).map(([base, repo]) => ({ base, repo }));
+}
+
+/* ---------------------------------- Discord --------------------------------- */
 
 function badgeless(s) {
   return String(s ?? '').replace(/\s+/g, ' ').trim();
@@ -224,7 +284,56 @@ async function main() {
 
   await saveSeen(seen);
 
-  // 2. Hand keyless endpoints to the worker so the 15-minute scan watches them.
+  // 2. Gateways mined from GitHub READMEs. A keyed one is still useful because
+  //    the repo that advertises it is where the key comes from, so it is reported
+  //    with that link instead of being dropped.
+  const knownHosts = new Set();
+  for (const e of feed.json?.entries ?? []) {
+    try {
+      knownHosts.add(new URL(e.api?.base_url).host.toLowerCase());
+    } catch {
+      /* no base url */
+    }
+  }
+  let crawled = 0;
+  for (const c of await githubCandidates(seen, knownHosts)) {
+    const p = await probeProvider(c.base);
+    const chat = p.keyless && p.models.length ? await probeChat(p.modelsUrl, p.models) : { ok: false };
+    seen.providers[`gh:${c.base}`] = { name: c.repo, at: new Date().toISOString(), keyless: chat.ok };
+
+    const reachable = p.models.length > 0;
+    if (!reachable || (!chat.ok && crawled >= 3)) continue;
+    if (chat.ok) {
+      keyless.push({
+        id: `gh-${c.base.replace(/[^a-z0-9]+/gi, '-')}`,
+        name: `${c.repo} gateway`,
+        modelsUrl: p.modelsUrl,
+        models: p.models.slice(0, 12),
+      });
+    } else {
+      crawled++;
+    }
+
+    embeds.push({
+      title: `🌐 ${chat.ok ? 'keyless' : 'keyed'} gateway listed in ${c.repo}`,
+      url: `https://github.com/${c.repo}`,
+      description: chat.ok
+        ? 'Found in a repository README and answered a live chat with no key.'
+        : 'Found in a repository README. It lists models but wants a token; the repo is where to get one.',
+      color: chat.ok ? 0x57f287 : 0xf0b132,
+      fields: [
+        { name: 'Base URL', value: '`' + c.base + '`', inline: false },
+        { name: chat.ok ? 'Live chat' : 'Catalog', value: chat.ok ? `✅ \`${chat.model}\`` : `${p.models.length} models listed`, inline: false },
+      ],
+      footer: { text: 'Radar · GitHub README crawl' },
+      timestamp: new Date().toISOString(),
+    });
+    if (embeds.length >= MAX_POSTS) break;
+  }
+
+  await saveSeen(seen);
+
+  // 3. Hand keyless endpoints to the worker so the 15-minute scan watches them.
   if (keyless.length && !DRY) {
     const res = await fetch(`${WORKER}/radar`, {
       method: 'POST',
@@ -237,7 +346,10 @@ async function main() {
   if (VERBOSE) {
     console.log(`[radar] providers=${candidates.length} keyless=${keyless.length} embeds=${embeds.length}`);
     for (const k of keyless) console.log(`  + keyless ${k.name} -> ${k.modelsUrl}`);
-    for (const e of embeds) console.log(`  • ${e.title}`);
+    for (const e of embeds) {
+      const base = e.fields?.find((f) => f.name === 'Base URL')?.value ?? '';
+      console.log(`  • ${e.title}${base ? '  ' + base : ''}`);
+    }
   }
 
   if (embeds.length) {

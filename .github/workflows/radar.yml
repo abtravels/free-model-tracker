@@ -30,6 +30,7 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           RADAR_TOKEN: ${{ secrets.RADAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TRACKER_WORKER_URL: https://free-model-tracker.umair5075.workers.dev
         run: node src/radar.js --verbose
 

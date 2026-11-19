@@ -59,6 +59,106 @@
       "name": "Z.ai (Zhipu GLM)",
       "at": "2026-11-19T13:41:55.435Z",
       "keyless": false
+    },
+    "ovh-ai-endpoints": {
+      "name": "OVHcloud AI Endpoints",
+      "at": "2026-11-19T14:57:10.563Z",
+      "keyless": false
+    },
+    "pollinations": {
+      "name": "Pollinations.AI",
+      "at": "2026-11-19T14:57:11.690Z",
+      "keyless": false
+    },
+    "alibaba-model-studio": {
+      "name": "Alibaba Cloud Model Studio (DashScope, international)",
+      "at": "2026-11-19T14:57:13.541Z",
+      "keyless": false
+    },
+    "upstage": {
+      "name": "Upstage (Solar API)",
+      "at": "2026-11-19T14:57:14.738Z",
+      "keyless": false
+    },
+    "cohere": {
+      "name": "Cohere (trial keys)",
+      "at": "2026-11-19T14:57:15.202Z",
+      "keyless": false
+    },
+    "bazaarlink": {
+      "name": "BazaarLink",
+      "at": "2026-11-19T14:57:18.091Z",
+      "keyless": false
+    },
+    "tokenrouter": {
+      "name": "TokenRouter (PaleBlueDot)",
+      "at": "2026-11-19T14:57:19.059Z",
+      "keyless": false
+    },
+    "routeway": {
+      "name": "Routeway",
+      "at": "2026-11-19T14:57:19.383Z",
+      "keyless": false
+    },
+    "requesty": {
+      "name": "Requesty",
+      "at": "2026-11-19T14:57:22.224Z",
+      "keyless": false
+    },
+    "sea-lion": {
+      "name": "SEA-LION (AI Singapore)",
+      "at": "2026-11-19T14:57:23.276Z",
+      "keyless": false
+    },
+    "aihubmix": {
+      "name": "AIHubMix (free models)",
+      "at": "2026-11-19T14:57:24.510Z",
+      "keyless": false
+    },
+    "inception-labs": {
+      "name": "Inception Labs (Mercury)",
+      "at": "2026-11-19T14:57:24.968Z",
+      "keyless": false
+    },
+    "gh:https://api.cohere.ai/compatibility/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:40.498Z",
+      "keyless": false
+    },
+    "gh:https://ai-gateway.kilo.ai/api/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:41.717Z",
+      "keyless": false
+    },
+    "gh:https://api.grokified.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:42.384Z",
+      "keyless": false
+    },
+    "gh:https://api.airforce/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:43.672Z",
+      "keyless": false
+    },
+    "gh:https://api.gonkarouter.io/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:44.101Z",
+      "keyless": false
+    },
+    "gh:https://vectoree.ai/api/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:45.012Z",
+      "keyless": false
+    },
+    "gh:https://oai.aihorde.net/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:45.889Z",
+      "keyless": false
+    },
+    "gh:https://api.jina.ai/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-19T14:57:46.896Z",
+      "keyless": false
     }
   },
   "models": {}

@@ -30,6 +30,10 @@ sources; it hunts for **new sources that are callable with an API key**:
   probe and then a real `max_tokens: 8` chat probe. A provider that answers chat
   with no key is adopted by the 15-minute scan automatically; the rest are
   reported as "key needed" with their key page.
+- **GitHub README crawl** — searches repos that talk about free / uncensored
+  OpenAI-compatible APIs, mines their READMEs for `…/v1` base URLs, drops hosts
+  already known, and probes what is left. Keyless ones get adopted by the scan;
+  keyed ones are reported with the repo that documents them.
 
 No GGUF / weight repos: everything reported is an HTTP endpoint, not a download.
 
