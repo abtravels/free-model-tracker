@@ -5,3 +5,7 @@ config.json
 config.local.json
 config.test.json
 .env
+
+.wrangler/
+worker/.wrangler/
+

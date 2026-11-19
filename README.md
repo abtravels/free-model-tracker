@@ -19,6 +19,32 @@ node src/index.js                      # loop forever (15 min default)
 Windows: `run-once.cmd` reads keys from `~/.config/opencode/*-api-key.txt` so it can
 be driven by Task Scheduler.
 
+## Cloudflare Worker (recommended scheduler)
+
+GitHub Actions cron is best-effort: in practice it fired only twice in 25 hours
+instead of every 15 minutes. `worker/` runs the same scan on Cloudflare's cron,
+which fires on the clock.
+
+```bash
+cd worker
+npx wrangler kv namespace create STATE    # put the id in wrangler.toml
+npx wrangler secret put DISCORD_WEBHOOK   # repeat for each *_KEY you have
+npx wrangler deploy
+```
+
+Live endpoints:
+
+| Route | Purpose |
+|---|---|
+| `GET /health` | liveness |
+| `GET /scan` | run a scan now and return the log |
+| `GET /state` | how many models are remembered |
+| `POST /seed` | one-off import of `data/seen.json` so old models are not re-announced |
+
+Already-announced state lives in the `STATE` KV namespace, not a file, so each
+invocation stays stateless. Sources whose API key secret is missing are skipped
+instead of erroring.
+
 ## What it does
 
 1. Polls every configured source's `GET /models` (3 attempts, so a flaky DNS blip

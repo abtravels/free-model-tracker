@@ -1,8 +1,9 @@
 name: scan
 
+# Scheduling moved to Cloudflare Workers (worker/), which fires exactly on the
+# clock instead of GitHub's best-effort cron. Keep this file only for manual
+# runs from the Actions tab.
 on:
-  schedule:
-    - cron: "*/15 * * * *"
   workflow_dispatch:
 
 permissions:
