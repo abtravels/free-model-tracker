@@ -1,13 +1,13 @@
 /**
- * Radar: finds *new* free uncensored providers that nobody's model list shows.
+ * Radar: finds *new* free uncensored API providers that nobody's model list shows.
  *
- * Two feeds:
- *  1. awesome-free-ai-coding/index.json - 137 providers, each already checked for
- *     "free" + "no card" by its maintainers, with base URLs and probe results.
- *  2. Hugging Face model search - newly published abliterated / uncensored weights.
+ * Feed: awesome-free-ai-coding/index.json - 137 providers, each already checked
+ * for "free" + "no card" by its maintainers, with base URLs, key pages and probe
+ * results. No GGUF weights: the point is something callable with an API key.
  *
- * Every provider is probed anonymously before it is reported, and keyless ones are
- * pushed into the Worker's KV so the 15-minute scan starts watching them by itself.
+ * Every provider is probed anonymously before it is reported, and genuinely
+ * keyless ones are pushed into the Worker's KV so the 15-minute scan watches
+ * them by itself.
  *
  * Usage: node src/radar.js [--dry] [--verbose]
  */
@@ -25,7 +25,6 @@ const RADAR_TOKEN = process.env.RADAR_TOKEN ?? '';
 const SEEN_PATH = process.env.RADAR_SEEN ?? 'data/radar-seen.json';
 
 const FEED = 'https://raw.githubusercontent.com/mvalentsev/awesome-free-ai-coding/main/index.json';
-const HF = 'https://huggingface.co/api/models';
 
 const UNCENSORED = /uncensor|abliterat|heretic|euryale|dolphin|lunaris|magnum|mythomax|nsfw|unfiltered/i;
 const MAX_POSTS = 8;
@@ -127,30 +126,7 @@ async function probeChat(modelsUrl, modelIds) {
   return { ok: hasChoice, status: r.status, model: pick };
 }
 
-/* ------------------------------ model discovery ------------------------------ */
-
-/** Newly published abliterated / uncensored weights on Hugging Face. */
-async function findNewModels(seen, nowMs) {
-  const found = [];
-  for (const term of ['abliterated', 'uncensored']) {
-    const r = await fetchJson(`${HF}?search=${term}&sort=createdAt&direction=-1&limit=40`);
-    for (const m of r.json ?? []) {
-      const id = String(m?.id ?? '');
-      const created = Date.parse(m?.createdAt ?? '');
-      if (!id || !Number.isFinite(created)) continue;
-      if (nowMs - created > 3 * 86_400_000) continue;   // only the last 3 days
-      if ((m.likes ?? 0) < 2 && (m.downloads ?? 0) < 50) continue;
-      if (seen.models[id]) continue;
-      found.push({ id, likes: m.likes ?? 0, downloads: m.downloads ?? 0, createdAt: m.createdAt, term });
-    }
-    await sleep(400);
-  }
-  const unique = new Map();
-  for (const m of found) unique.set(m.id, m);
-  return [...unique.values()].sort((a, b) => b.likes - a.likes);
-}
-
-/* ---------------------------------- Discord --------------------------------- */
+/* ----------------------------- provider discovery ---------------------------- */
 
 function badgeless(s) {
   return String(s ?? '').replace(/\s+/g, ' ').trim();
@@ -246,28 +222,9 @@ async function main() {
     if (embeds.length >= MAX_POSTS) break;
   }
 
-  // 2. New uncensored weights.
-  for (const m of await findNewModels(seen, nowMs)) {
-    if (embeds.length >= MAX_POSTS + 4) break;
-    seen.models[m.id] = { at: new Date().toISOString() };
-    embeds.push({
-      title: `🧪 new uncensored weights: ${m.id}`,
-      url: `https://huggingface.co/${m.id}`,
-      color: 0xff6b35,
-      fields: [
-        { name: 'Matched', value: m.term, inline: true },
-        { name: 'Likes', value: String(m.likes), inline: true },
-        { name: 'Downloads', value: String(m.downloads), inline: true },
-        { name: 'Published', value: String(m.createdAt).slice(0, 10), inline: true },
-      ],
-      footer: { text: 'Radar · Hugging Face new releases' },
-      timestamp: new Date().toISOString(),
-    });
-  }
-
   await saveSeen(seen);
 
-  // 3. Hand keyless endpoints to the worker so the 15-minute scan watches them.
+  // 2. Hand keyless endpoints to the worker so the 15-minute scan watches them.
   if (keyless.length && !DRY) {
     const res = await fetch(`${WORKER}/radar`, {
       method: 'POST',
