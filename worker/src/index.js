@@ -384,12 +384,15 @@ async function scan(env) {
 
   const toProbe = candidates.slice(0, MAX_PROBES_PER_RUN);
   const probes = await mapLimit(toProbe, 3, (c) => probeModel(c.source, c.model));
+  const badRadar = new Set();
 
   toProbe.forEach((c, i) => {
     const p = probes[i];
     if (!p.ok) {
       state.failures[c.model.key] = (state.failures[c.model.key] ?? 0) + 1;
       errors.push(`probe ${c.model.key}: ${p.error}`);
+      // A radar-adopted provider that rejects anonymous calls was a bad pick.
+      if (c.source.radar && /\b(401|403)\b/.test(p.error)) badRadar.add(c.source.id);
       return;
     }
     delete state.failures[c.model.key];
@@ -427,6 +430,12 @@ async function scan(env) {
   }
 
   await saveState(env, state);
+
+  if (badRadar.size) {
+    const list = await loadRadar(env);
+    const kept = list.filter((s) => !badRadar.has(`radar-${s.id}`));    await saveRadar(env, kept);
+    log.push(`dropped radar sources: ${[...badRadar].join(', ')}`);
+  }
 
   log.push(
     `sources=${active.length} models=${active.length ? toProbe.length : 0} new=${found.length} seen=${Object.keys(state.seen).length}`,
