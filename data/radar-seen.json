@@ -159,6 +159,106 @@
       "name": "nejib1/Free-LLM",
       "at": "2026-11-19T14:57:46.896Z",
       "keyless": false
+    },
+    "dahl-inference": {
+      "name": "Dahl Inference",
+      "at": "2026-11-20T13:11:07.319Z",
+      "keyless": false
+    },
+    "sensenova": {
+      "name": "SenseNova (SenseTime 商汤)",
+      "at": "2026-11-20T13:11:08.386Z",
+      "keyless": false
+    },
+    "hetzner-inference": {
+      "name": "Hetzner Inference API",
+      "at": "2026-11-20T13:11:08.850Z",
+      "keyless": false
+    },
+    "regolo": {
+      "name": "Regolo AI",
+      "at": "2026-11-20T13:11:10.332Z",
+      "keyless": false
+    },
+    "meganova": {
+      "name": "MegaNova",
+      "at": "2026-11-20T13:11:10.716Z",
+      "keyless": false
+    },
+    "llmtr": {
+      "name": "LLMTR",
+      "at": "2026-11-20T13:11:11.642Z",
+      "keyless": false
+    },
+    "freeinference": {
+      "name": "FreeInference (Harvard SEAS)",
+      "at": "2026-11-20T13:11:11.909Z",
+      "keyless": false
+    },
+    "opentyphoon": {
+      "name": "OpenTyphoon (SCB 10X)",
+      "at": "2026-11-20T13:11:12.224Z",
+      "keyless": false
+    },
+    "sarvam": {
+      "name": "Sarvam AI",
+      "at": "2026-11-20T13:11:13.756Z",
+      "keyless": false
+    },
+    "standardcompute": {
+      "name": "Standard Compute",
+      "at": "2026-11-20T13:11:14.165Z",
+      "keyless": false
+    },
+    "routerplex": {
+      "name": "RouterPlex",
+      "at": "2026-11-20T13:11:14.250Z",
+      "keyless": false
+    },
+    "agnes-ai": {
+      "name": "Agnes AI",
+      "at": "2026-11-20T13:11:14.564Z",
+      "keyless": false
+    },
+    "gh:https://gen.pollinations.ai/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:24.279Z",
+      "keyless": false
+    },
+    "gh:https://inference.friendli.ai/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:24.412Z",
+      "keyless": false
+    },
+    "gh:https://api.voyageai.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:24.546Z",
+      "keyless": false
+    },
+    "gh:https://api.hyperbolic.ai/inference/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:24.934Z",
+      "keyless": false
+    },
+    "gh:https://proxy.gonkabroker.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:25.121Z",
+      "keyless": false
+    },
+    "gh:https://open.bigmodel.cn/api/paas/v4": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:25.821Z",
+      "keyless": false
+    },
+    "gh:https://tokenhub-intl.tencentmaas.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-20T13:11:26.516Z",
+      "keyless": false
+    },
+    "gh:https://data.oxylabs.io/v1": {
+      "name": "oxylabs/perplexity-scraper",
+      "at": "2026-11-20T13:11:26.824Z",
+      "keyless": false
     }
   },
   "models": {}
