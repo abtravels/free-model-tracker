@@ -118,13 +118,16 @@ async function runOnce(config, state, maxFailures = 3) {
     found.push({ ...c, verified: !!verify.enabled, latencyMs: p.latencyMs ?? null });
   });
 
-  // Forget models that vanished from every source so a comeback alerts again.
-  for (const key of Object.keys(state.seen)) {
-    if (!activeKeys.has(key)) {
-      const entry = state.seen[key];
-      const sourceSeen = config.sources.some((s) => s.id === entry.source);
-      if (sourceSeen) delete state.seen[key];
-    }
+  // Same rule as the worker: a model missing from a run is usually only
+  // rotated out, so it stays remembered (no repeat alerts on rotation). Only
+  // entries unseen for a month are forgotten.
+  const forgetBefore = Date.now() - 30 * 86_400_000;
+  for (const [key, entry] of Object.entries(state.seen)) {
+    if (activeKeys.has(key)) continue;
+    if (!config.sources.some((s) => s.id === entry.source)) continue;
+    const last = Date.parse(entry.lastSeen ?? entry.firstSeen ?? '');
+    if (Number.isFinite(last) && last > forgetBefore) continue;
+    delete state.seen[key];
   }
 
   state.lastRun = now;

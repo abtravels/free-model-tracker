@@ -89,8 +89,9 @@ instead of erroring.
    repo must look AI-related *and* free/API-related. New repos arrive as
    `🆕 owner/repo` embeds with stars and description.
 5. Every hit is stored in `data/seen.json` keyed by `source::modelId`, so nothing is
-   announced twice. A model that disappears from a source is forgotten, so if it
-   comes back it alerts again.
+   announced twice. A model that is merely missing from one run (free catalogues
+   rotate their models hourly) stays remembered; only entries unseen for 30 days
+   are forgotten, so rotations never re-announce the same model.
 
 ## Config
 

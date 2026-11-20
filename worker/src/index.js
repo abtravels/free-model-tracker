@@ -10,6 +10,13 @@ const MAX_PROBES_PER_RUN = 10;     // free plan allows 50 subrequests per invoca
 const PROBE_TIMEOUT_MS = 90_000;   // Numes free tier often needs 45-70s to answer
 const PROBE_MAX_TOKENS = 8;
 
+// A model that vanishes from a catalogue is normally just rotating out, so it
+// stays remembered. Only after this many days unseen is it forgotten.
+const ABSENT_FORGET_DAYS = 30;
+
+// Failed probes cool down instead of being skipped forever or retried each run.
+const FAIL_BACKOFF_MIN = [60, 180, 360, 720]; // minutes after 1st, 2nd, 3rd, 4th+ failure
+
 const UNCENSORED_KEYWORDS = [
   'uncensored', 'abliterated', 'heretic', 'unaligned', 'unfiltered', 'dolphin', 'nsfw',
 ];
@@ -348,7 +355,7 @@ async function saveState(env, state) {
   await env.STATE.put(STATE_KEY, JSON.stringify(state));
 }
 
-async function scan(env) {
+async function scan(env, { silent = false } = {}) {
   const log = [];
   const errors = [];
   const state = await loadState(env);
@@ -382,6 +389,31 @@ async function scan(env) {
     }
   }
 
+  // Silent pass: remember everything currently listed but never probe or post.
+  // Used once to swallow repeats left over from the old pruning behaviour.
+  if (silent) {
+    for (const c of candidates) {
+      state.seen[c.model.key] = {
+        source: c.model.sourceId,
+        model: c.model.id,
+        name: c.model.name,
+        free: true,
+        uncensored: c.uncensored,
+        silent: true,
+        firstSeen: now,
+        lastSeen: now,
+      };
+    }
+    await saveState(env, state);
+    return {
+      silent: true,
+      remembered: candidates.length,
+      seen: Object.keys(state.seen).length,
+      errors,
+      log: [`silent seed: candidates=${candidates.length} seen=${Object.keys(state.seen).length}`],
+    };
+  }
+
   const toProbe = candidates.slice(0, MAX_PROBES_PER_RUN);
   const probes = await mapLimit(toProbe, 3, (c) => probeModel(c.source, c.model));
   const badRadar = new Set();
@@ -409,11 +441,21 @@ async function scan(env) {
     found.push({ ...c, latencyMs: p.latencyMs });
   });
 
-  // Drop entries whose source disappeared so a comeback alerts again.
-  for (const key of Object.keys(state.seen)) {
-    if (!activeKeys.has(key) && active.some((s) => s.id === state.seen[key].source)) {
-      delete state.seen[key];
+  // A model that is missing from a catalogue right now is usually only rotated
+  // out for an hour (Numes does this constantly), so it must stay in `seen`:
+  // deleting it made the same model get announced again on its next rotation.
+  // Only entries unseen for a month are dropped, so truly dead keys do not
+  // accumulate forever.
+  const forgetBefore = Date.now() - ABSENT_FORGET_DAYS * 86_400_000;
+  for (const [key, entry] of Object.entries(state.seen)) {
+    if (activeKeys.has(key)) continue;
+    if (!active.some((s) => s.id === entry.source)) continue;
+    const last = Date.parse(entry.lastSeen ?? entry.firstSeen ?? '');
+    if (Number.isFinite(last) && last > forgetBefore) {
+      entry.absentRuns = (entry.absentRuns ?? 0) + 1;
+      continue;
     }
+    delete state.seen[key];
   }
 
   let posted = null;
@@ -462,7 +504,7 @@ export default {
     }
 
     if (url.pathname === '/scan') {
-      const result = await scan(env);
+      const result = await scan(env, { silent: url.searchParams.get('silent') === '1' });
       return Response.json(result);
     }
 
