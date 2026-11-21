@@ -15,7 +15,21 @@ const PROBE_MAX_TOKENS = 8;
 const ABSENT_FORGET_DAYS = 30;
 
 // Failed probes cool down instead of being skipped forever or retried each run.
-const FAIL_BACKOFF_MIN = [60, 180, 360, 720]; // minutes after 1st, 2nd, 3rd, 4th+ failure
+// Free sources are flaky (Numes answers in 45-70s and occasionally 520s), so a
+// model that fails three times is still retried later — never blacklisted.
+const FAIL_BACKOFF_MIN = [30, 60, 180, 360]; // wait after 1st, 2nd, 3rd, 4th+ failure
+
+/** How long a failed probe must stay quiet before it is retried. */
+function failBackoffMs(failure) {
+  const count = typeof failure === 'number' ? failure : (failure?.count ?? 0);
+  if (!count) return 0;
+  const minutes = FAIL_BACKOFF_MIN[Math.min(count, FAIL_BACKOFF_MIN.length) - 1];
+  return minutes * 60_000;
+}
+
+function failCount(failure) {
+  return typeof failure === 'number' ? failure : (failure?.count ?? 0);
+}
 
 const UNCENSORED_KEYWORDS = [
   'uncensored', 'abliterated', 'heretic', 'unaligned', 'unfiltered', 'dolphin', 'nsfw',
@@ -340,7 +354,8 @@ async function saveRadar(env, list) {
 async function loadState(env) {
   if (!env.STATE) return { seen: {}, failures: {} };
   const raw = await env.STATE.get(STATE_KEY, 'json');
-  return { seen: raw?.seen ?? {}, failures: raw?.failures ?? {} };
+  // Keep any extra bookkeeping fields (lastRun, lastResult) that saveState wrote.
+  return { ...(raw ?? {}), seen: raw?.seen ?? {}, failures: raw?.failures ?? {} };
 }
 
 async function saveState(env, state) {
@@ -379,8 +394,16 @@ async function scan(env, { silent = false } = {}) {
         state.seen[model.key].lastSeen = now;
         continue;
       }
-      const fails = state.failures[model.key] ?? 0;
-      if (fails >= 3) continue;
+      const failure = state.failures[model.key];
+      if (failure) {
+        const count = failCount(failure);
+        const at = typeof failure === 'number' ? 0 : Date.parse(failure.at ?? '');
+        if (Number.isFinite(at) && at > 0 && Date.now() - at < failBackoffMs(failure)) continue;
+        if (!Number.isFinite(at) || at === 0) {
+          // Legacy numeric counter: no timestamp, so let it retry now.
+          if (count >= 6) continue;
+        }
+      }
       candidates.push({
         source,
         model,
@@ -421,7 +444,12 @@ async function scan(env, { silent = false } = {}) {
   toProbe.forEach((c, i) => {
     const p = probes[i];
     if (!p.ok) {
-      state.failures[c.model.key] = (state.failures[c.model.key] ?? 0) + 1;
+      const prev = state.failures[c.model.key];
+      state.failures[c.model.key] = {
+        count: failCount(prev) + 1,
+        at: now,
+        error: String(p.error ?? '').replace(/\s+/g, ' ').slice(0, 140),
+      };
       errors.push(`probe ${c.model.key}: ${p.error}`);
       // A radar-adopted provider that rejects anonymous calls was a bad pick.
       if (c.source.radar && /\b(401|403)\b/.test(p.error)) badRadar.add(c.source.id);
@@ -470,6 +498,16 @@ async function scan(env, { silent = false } = {}) {
     );
     if (!posted.ok) errors.push(`discord: ${posted.error}`);
   }
+
+  state.lastRun = now;
+  state.lastResult = {
+    sources: active.length,
+    probed: toProbe.length,
+    found: found.length,
+    pending: candidates.length - toProbe.length,
+    posted: posted?.ok ?? null,
+    errors: errors.slice(0, 8),
+  };
 
   await saveState(env, state);
 
@@ -520,6 +558,8 @@ export default {
           firstSeen: state.seen[k].firstSeen,
         })),
         failures: state.failures,
+        lastRun: state.lastRun ?? null,
+        lastResult: state.lastResult ?? null,
       });
     }
 
@@ -552,8 +592,9 @@ export default {
       return Response.json({ count: list.length, sources: list });
     }
 
-    return new Response('free-model-tracker\n\nGET /health\nGET /scan\nGET /state\nGET /radar\n', {
-      headers: { 'content-type': 'text/plain' },
-    });
+    return new Response(
+      'free-model-tracker\n\nGET /health\nGET /scan\nGET /scan?silent=1\nGET /state\nGET /radar\n',
+      { headers: { 'content-type': 'text/plain' } },
+    );
   },
 };

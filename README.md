@@ -63,12 +63,15 @@ Live endpoints:
 |---|---|
 | `GET /health` | liveness |
 | `GET /scan` | run a scan now and return the log |
-| `GET /state` | how many models are remembered |
+| `GET /state` | remembered models, last run summary and probe cooldowns |
+| `GET /scan?silent=1` | remember everything currently listed without probing or posting |
 | `POST /seed` | one-off import of `data/seen.json` so old models are not re-announced |
 
 Already-announced state lives in the `STATE` KV namespace, not a file, so each
 invocation stays stateless. Sources whose API key secret is missing are skipped
-instead of erroring.
+instead of erroring. A failed probe backs off (30 min → 1 h → 3 h → 6 h) and is
+retried after that instead of being blacklisted, because free endpoints fail
+randomly (Numes answers in 45-70 s and sometimes returns 520).
 
 ## What it does
 
