@@ -259,6 +259,106 @@
       "name": "oxylabs/perplexity-scraper",
       "at": "2026-11-20T13:11:26.824Z",
       "keyless": false
+    },
+    "token-harbor": {
+      "name": "Token Harbor",
+      "at": "2026-11-21T12:49:01.282Z",
+      "keyless": false
+    },
+    "nous-portal": {
+      "name": "Nous Portal (Hermes Agent)",
+      "at": "2026-11-21T12:49:01.429Z",
+      "keyless": false
+    },
+    "llm7": {
+      "name": "LLM7.io",
+      "at": "2026-11-21T12:49:03.435Z",
+      "keyless": false
+    },
+    "fireworks-ai": {
+      "name": "Fireworks AI",
+      "at": "2026-11-21T12:49:03.452Z",
+      "keyless": false
+    },
+    "vlm-run-gateway": {
+      "name": "VLM Run Gateway",
+      "at": "2026-11-21T12:49:03.740Z",
+      "keyless": false
+    },
+    "tencent-tokenhub": {
+      "name": "Tencent Cloud TokenHub",
+      "at": "2026-11-21T12:49:04.826Z",
+      "keyless": false
+    },
+    "bytez": {
+      "name": "Bytez",
+      "at": "2026-11-21T12:49:05.017Z",
+      "keyless": false
+    },
+    "arli-ai": {
+      "name": "Arli AI",
+      "at": "2026-11-21T12:49:05.743Z",
+      "keyless": false
+    },
+    "opper": {
+      "name": "Opper",
+      "at": "2026-11-21T12:49:06.213Z",
+      "keyless": false
+    },
+    "moark": {
+      "name": "Moark (Gitee AI)",
+      "at": "2026-11-21T12:49:08.424Z",
+      "keyless": false
+    },
+    "mixlayer": {
+      "name": "Mixlayer",
+      "at": "2026-11-21T12:49:08.570Z",
+      "keyless": false
+    },
+    "impossibl": {
+      "name": "Impossibl",
+      "at": "2026-11-21T12:49:09.323Z",
+      "keyless": false
+    },
+    "gh:https://freemodel.online/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-21T12:49:20.045Z",
+      "keyless": false
+    },
+    "gh:https://inferaft.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-21T12:49:20.509Z",
+      "keyless": false
+    },
+    "gh:https://api.runcrate.ai/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-21T12:49:21.190Z",
+      "keyless": false
+    },
+    "gh:https://synap402.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-21T12:49:22.297Z",
+      "keyless": false
+    },
+    "gh:https://api.hiapi.ai/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-21T12:49:22.434Z",
+      "keyless": false
+    },
+    "gh:https://freellmapihub.com/api/v1": {
+      "name": "pacocartones/free-llm-api-hub",
+      "at": "2026-11-21T12:49:22.631Z",
+      "keyless": false
+    },
+    "gh:https://grandet.ai/api/v1": {
+      "name": "hanzohanzhe/Grandet",
+      "at": "2026-11-21T12:49:34.357Z",
+      "keyless": false
+    },
+    "gh:https://codex.neuroapi.host/v1": {
+      "name": "neurogen-dev/NeuroAPI",
+      "at": "2026-11-21T12:49:35.251Z",
+      "keyless": false
     }
   },
   "models": {}
