@@ -359,6 +359,66 @@
       "name": "neurogen-dev/NeuroAPI",
       "at": "2026-11-21T12:49:35.251Z",
       "keyless": false
+    },
+    "the-grid": {
+      "name": "The Grid",
+      "at": "2026-11-22T12:41:39.690Z",
+      "keyless": false
+    },
+    "hpc-ai": {
+      "name": "HPC-AI Model APIs",
+      "at": "2026-11-22T12:41:40.584Z",
+      "keyless": false
+    },
+    "novita": {
+      "name": "Novita AI",
+      "at": "2026-11-22T12:41:40.613Z",
+      "keyless": false
+    },
+    "siliconflow-cn": {
+      "name": "SiliconFlow (China)",
+      "at": "2026-11-22T12:41:41.640Z",
+      "keyless": false
+    },
+    "modelscope": {
+      "name": "ModelScope API-Inference (Alibaba)",
+      "at": "2026-11-22T12:41:43.383Z",
+      "keyless": false
+    },
+    "wallaby": {
+      "name": "Wallaby",
+      "at": "2026-11-22T12:41:43.936Z",
+      "keyless": false
+    },
+    "aion-labs": {
+      "name": "Aion Labs",
+      "at": "2026-11-22T12:41:44.078Z",
+      "keyless": false
+    },
+    "inferbase": {
+      "name": "Inferbase",
+      "at": "2026-11-22T12:41:44.418Z",
+      "keyless": false
+    },
+    "simplellm": {
+      "name": "SimpleLLM",
+      "at": "2026-11-22T12:41:45.312Z",
+      "keyless": false
+    },
+    "iteracompute": {
+      "name": "IteraCompute",
+      "at": "2026-11-22T12:41:47.724Z",
+      "keyless": false
+    },
+    "novai": {
+      "name": "NovAI",
+      "at": "2026-11-22T12:41:48.186Z",
+      "keyless": false
+    },
+    "zro": {
+      "name": "Zro (MoonMath)",
+      "at": "2026-11-22T12:41:48.543Z",
+      "keyless": false
     }
   },
   "models": {}
