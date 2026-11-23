@@ -419,6 +419,66 @@
       "name": "Zro (MoonMath)",
       "at": "2026-11-22T12:41:48.543Z",
       "keyless": false
+    },
+    "kiosapi-id": {
+      "name": "Kiosapi.id",
+      "at": "2026-11-23T14:55:53.852Z",
+      "keyless": false
+    },
+    "onemin-ai": {
+      "name": "1min.AI",
+      "at": "2026-11-23T14:55:53.946Z",
+      "keyless": false
+    },
+    "liquid-inference": {
+      "name": "Liquid Inference",
+      "at": "2026-11-23T14:55:54.362Z",
+      "keyless": false
+    },
+    "llm-kiwi": {
+      "name": "LLM.kiwi",
+      "at": "2026-11-23T14:55:54.915Z",
+      "keyless": false
+    },
+    "mixedbread": {
+      "name": "Mixedbread",
+      "at": "2026-11-23T14:55:55.047Z",
+      "keyless": false
+    },
+    "merkium": {
+      "name": "Merkium",
+      "at": "2026-11-23T14:55:55.700Z",
+      "keyless": false
+    },
+    "jzstoken": {
+      "name": "JZS Token",
+      "at": "2026-11-23T14:55:55.831Z",
+      "keyless": false
+    },
+    "anyapi": {
+      "name": "AnyAPI",
+      "at": "2026-11-23T14:55:56.241Z",
+      "keyless": false
+    },
+    "plamo": {
+      "name": "PLaMo API (Preferred Networks)",
+      "at": "2026-11-23T14:55:56.571Z",
+      "keyless": false
+    },
+    "miapi": {
+      "name": "MIAPI",
+      "at": "2026-11-23T14:55:56.890Z",
+      "keyless": false
+    },
+    "beatapi": {
+      "name": "BeatAPI (free models)",
+      "at": "2026-11-23T14:55:57.262Z",
+      "keyless": false
+    },
+    "orcarouter": {
+      "name": "OrcaRouter (free models)",
+      "at": "2026-11-23T14:55:57.939Z",
+      "keyless": false
     }
   },
   "models": {}
