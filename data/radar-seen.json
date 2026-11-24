@@ -479,6 +479,51 @@
       "name": "OrcaRouter (free models)",
       "at": "2026-11-23T14:55:57.939Z",
       "keyless": false
+    },
+    "cheapllm-shop": {
+      "name": "cheapllm.shop",
+      "at": "2026-11-24T14:59:13.054Z",
+      "keyless": false
+    },
+    "logfare": {
+      "name": "Logfare (Standard models)",
+      "at": "2026-11-24T14:59:13.593Z",
+      "keyless": false
+    },
+    "teapotrouter": {
+      "name": "Teapot Router",
+      "at": "2026-11-24T14:59:13.721Z",
+      "keyless": false
+    },
+    "amd-token-factory": {
+      "name": "AMD Radeon Cloud Token Factory",
+      "at": "2026-11-24T14:59:14.332Z",
+      "keyless": false
+    },
+    "blockrun": {
+      "name": "BlockRun (free models)",
+      "at": "2026-11-24T14:59:14.606Z",
+      "keyless": false
+    },
+    "iflytek-spark": {
+      "name": "iFlytek Spark Lite (讯飞星火)",
+      "at": "2026-11-24T14:59:15.513Z",
+      "keyless": false
+    },
+    "volcengine-ark": {
+      "name": "Volcengine Ark (new-user inference trial)",
+      "at": "2026-11-24T14:59:16.202Z",
+      "keyless": false
+    },
+    "together-ai": {
+      "name": "Together AI (free model)",
+      "at": "2026-11-24T14:59:16.253Z",
+      "keyless": false
+    },
+    "crowllm": {
+      "name": "CrowLLM (free models)",
+      "at": "2026-11-24T14:59:16.849Z",
+      "keyless": false
     }
   },
   "models": {}
