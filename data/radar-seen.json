@@ -524,6 +524,11 @@
       "name": "CrowLLM (free models)",
       "at": "2026-11-24T14:59:16.849Z",
       "keyless": false
+    },
+    "gh:https://api.plugsky.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-26T14:01:44.400Z",
+      "keyless": false
     }
   },
   "models": {}
