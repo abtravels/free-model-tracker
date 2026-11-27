@@ -529,6 +529,11 @@
       "name": "nejib1/Free-LLM",
       "at": "2026-11-26T14:01:44.400Z",
       "keyless": false
+    },
+    "gh:https://api.tokenlab.amd.com/v1": {
+      "name": "nejib1/Free-LLM",
+      "at": "2026-11-27T13:59:51.193Z",
+      "keyless": false
     }
   },
   "models": {}
